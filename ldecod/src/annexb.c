@@ -17,7 +17,15 @@
 #include "memalloc.h" 
 #include "fast_memory.h"
 
+extern int nalCounter;
+extern int frameCounter;
+extern nalDetails_p nalDetails [MAX_NAL_NUMBER];
+extern frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
+
 static const int IOBUFFERSIZE = 512*1024; //65536;
+
+static int position = 0;
+static int picNumber = 1;
 
 void malloc_annex_b(VideoParameters *p_Vid, ANNEXB_t **p_annex_b)
 {
@@ -288,6 +296,20 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
     nalu->startcodeprefix_len == 4?"long":"short", nalu->len, nalu->forbidden_bit, nalu->nal_reference_idc, nalu->nal_unit_type);
   fflush (p_Dec->p_trace);
 #endif
+
+// Validation metrics: log nal data 
+  nalDetails[nalCounter].type = nalu->nal_unit_type;
+  nalDetails[nalCounter].size =  nalu->startcodeprefix_len + nalu->len;
+  nalDetails[nalCounter].picNumber = picNumber ;
+  //nalDetails[nalCounter].position = position;
+  //position += nalDetails[nalCounter].size;
+#if 0
+  if ( (nalu->nal_unit_type == 6) | (nalu->nal_unit_type == 7) | (nalu->nal_unit_type == 8) | (nalu->nal_unit_type = 9) )
+  {
+     picNumber ++;
+  }
+#endif
+  nalCounter++;
 
   return (pos);
 

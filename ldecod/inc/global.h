@@ -45,10 +45,35 @@
 typedef struct bit_stream_dec Bitstream;
 
 #define ET_SIZE 300      //!< size of error text buffer
+#define MAX_NAL_NUMBER 5000
+#define MAX_FRAME_NUMBER 5000
+
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
 
 struct pic_motion_params_old;
 struct pic_motion_params;
+/***********************************************************************
+ * Global definitions for Encoder Validation
+ ***********************************************************************
+ */
+
+
+typedef struct nalDetails_s
+{
+  int   type;
+  char  typeStringified;
+  int   size;
+  long  position;
+  int   picNumber;
+} nalDetails_p;
+
+typedef struct frameDetails_s
+{
+   int position;
+   int frameNumber;
+   long crc;
+} frameDetails_t;
+
 
 /***********************************************************************
  * T y p e    d e f i n i t i o n s    f o r    J M
@@ -1049,6 +1074,7 @@ typedef struct decoder_params
 } DecoderParams;
 
 extern DecoderParams  *p_Dec;
+
 
 // prototypes
 extern void error(char *text, int code);

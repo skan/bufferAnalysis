@@ -30,6 +30,10 @@
 #define DECOUTPUT_VIEW0_FILENAME  "H264_Decoder_Output_View0.yuv"
 #define DECOUTPUT_VIEW1_FILENAME  "H264_Decoder_Output_View1.yuv"
 
+int nalCounter ;
+int frameCounter;
+nalDetails_p nalDetails [MAX_NAL_NUMBER];
+frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
 static void Configure(InputParameters *p_Inp, int ac, char *av[])
 {
@@ -219,6 +223,7 @@ int main(int argc, char **argv)
   int hFileDecOutput0=-1, hFileDecOutput1=-1;
   int iFramesOutput=0, iFramesDecoded=0;
   InputParameters InputParams;
+  int counter = 0;
 
 #if DECOUTPUT_TEST
   hFileDecOutput0 = open(DECOUTPUT_VIEW0_FILENAME, OPENFLAGS_WRITE, OPEN_PERMISSIONS);
@@ -227,6 +232,9 @@ int main(int argc, char **argv)
   fprintf(stdout, "Decoder output view1: %s\n", DECOUTPUT_VIEW1_FILENAME);
 #endif
 
+  // Validation metrics: init
+  nalCounter = 0;
+  frameCounter = 0;
   init_time();
 
   //get input parameters;
@@ -268,6 +276,16 @@ int main(int argc, char **argv)
   if(hFileDecOutput1>=0)
   {
     close(hFileDecOutput1);
+  }
+
+  for (counter = 0; counter < nalCounter ; counter ++)
+  {
+     printf ("cunter = %d; picNumber = %d; type = %d ; length = %d ; position = %d \n",
+           counter,
+           nalDetails[counter].picNumber,
+           nalDetails[counter].type,
+           nalDetails[counter].size, 
+           nalDetails[counter].position);
   }
 
   printf("%d frames are decoded.\n", iFramesDecoded);

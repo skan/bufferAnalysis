@@ -10,7 +10,7 @@
 NAME=   ldecod
 
 ### include debug information: 1=yes, 0=no
-DBG?= 0
+DBG?= 1
 ### Generate 32 bit executable : 1=yes, 0=no
 M32?= 0
 ### include O level optimization : 0-3
