@@ -17,9 +17,9 @@
 #include "memalloc.h" 
 #include "fast_memory.h"
 
-extern int nalCounter;
+extern int hvaNalCounter;
 extern int hvAframeCounter;
-extern nalDetails_p nalDetails [MAX_NAL_NUMBER];
+extern hvaNalDetails_p hvaNalDetails [HVA_MAX_NAL_NUMBER];
 extern frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
 static const int IOBUFFERSIZE = 512*1024; //65536;
@@ -298,27 +298,12 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
 #endif
 
 // Validation metrics: log nal data 
-  nalDetails[nalCounter].type = nalu->nal_unit_type;
-  nalDetails[nalCounter].size =  nalu->startcodeprefix_len + nalu->len;
-  nalDetails[nalCounter].picNumber = hvAframeCounter;
-  nalDetails[nalCounter].position = position;
-  position += nalDetails[nalCounter].size;
-  nalCounter++;
-#if 0
-  if ( (nalu->nal_unit_type == 0x06) | (nalu->nal_unit_type == 0x07) | (nalu->nal_unit_type == 0x08) | (nalu->nal_unit_type = 0x09) )
-  {
-     picNumber ++;
-  }
-#endif
-#if 0 /*SKH: debug*/
-  printf ("SKH debug: counter = %d; picNumber = %d; type = %d ; length = %d ; position = %lu \n",
-           nalCounter,
-           hvAframeCounter,
-           nalDetails[nalCounter].type,
-           nalDetails[nalCounter].size, 
-           nalDetails[nalCounter].position);
-
-#endif
+  hvaNalDetails[hvaNalCounter].type = nalu->nal_unit_type;
+  hvaNalDetails[hvaNalCounter].size =  nalu->startcodeprefix_len + nalu->len;
+  hvaNalDetails[hvaNalCounter].picNumber = hvAframeCounter;
+  hvaNalDetails[hvaNalCounter].position = position;
+  position += hvaNalDetails[hvaNalCounter].size;
+  hvaNalCounter++;
 
   return (pos);
 

@@ -45,7 +45,9 @@
 typedef struct bit_stream_dec Bitstream;
 
 #define ET_SIZE 300      //!< size of error text buffer
-#define MAX_NAL_NUMBER 5000
+#define HVA_MAX_NAL_NUMBER 5000
+#define HVA_MAX_AU_NUMBER 300
+
 #define MAX_FRAME_NUMBER 5000
 
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
@@ -57,15 +59,23 @@ struct pic_motion_params;
  ***********************************************************************
  */
 
+typedef struct hvaAuDetails_s
+{
+  int   number;
+  long position;
+  int size;
+  unsigned long crc;
+} hvaAuDetails_s;
 
-typedef struct nalDetails_s
+
+typedef struct hvaNalDetails_s
 {
   int   type;
   char  typeStringified;
   int   size;
   long  position;
   int   picNumber;
-} nalDetails_p;
+} hvaNalDetails_p;
 
 typedef struct frameDetails_s
 {

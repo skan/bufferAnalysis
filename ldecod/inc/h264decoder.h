@@ -48,6 +48,9 @@ int FinitDecoder(DecodedPicList **ppDecPicList);
 int CloseDecoder();
 int SetOptsDecoder(DecSet_t *pDecOpts);
 
+void hvaProcessMetrics();
+
+
 #ifdef __cplusplus
 }
 #endif
