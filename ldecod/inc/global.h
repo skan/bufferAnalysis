@@ -65,7 +65,7 @@ typedef struct hvaAuDetails_s
   long position;
   int size;
   unsigned long crc;
-} hvaAuDetails_s;
+} hvaAuDetails_t;
 
 
 typedef struct hvaNalDetails_s
@@ -75,7 +75,7 @@ typedef struct hvaNalDetails_s
   int   size;
   long  position;
   int   picNumber;
-} hvaNalDetails_p;
+} hvaNalDetails_t;
 
 typedef struct frameDetails_s
 {

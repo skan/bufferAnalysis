@@ -19,7 +19,7 @@
 
 extern int hvaNalCounter;
 extern int hvAframeCounter;
-extern hvaNalDetails_p hvaNalDetails [HVA_MAX_NAL_NUMBER];
+extern hvaNalDetails_t hvaNalDetails [HVA_MAX_NAL_NUMBER];
 extern frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
 static const int IOBUFFERSIZE = 512*1024; //65536;

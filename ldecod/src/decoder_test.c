@@ -31,8 +31,8 @@
 #define DECOUTPUT_VIEW1_FILENAME  "H264_Decoder_Output_View1.yuv"
 
 int hvaNalCounter;
-hvaNalDetails_p hvaNalDetails [HVA_MAX_NAL_NUMBER];
-hvaAuDetails_s hvaAuDetails [HVA_MAX_AU_NUMBER];
+hvaNalDetails_t hvaNalDetails [HVA_MAX_NAL_NUMBER];
+hvaAuDetails_t hvaAuDetails [HVA_MAX_AU_NUMBER];
 
 frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
@@ -287,6 +287,9 @@ int main(int argc, char **argv)
 void hvaProcessMetrics()
 {
    int counter = 0;
+   int picCounter = 0;
+   int j = 0;
+
    printf("skh nalcounter = %d\n", hvaNalCounter);
    for (counter = 0; counter < hvaNalCounter ; counter ++)
    {
@@ -296,6 +299,14 @@ void hvaProcessMetrics()
             hvaNalDetails[counter].type,
             hvaNalDetails[counter].size, 
             hvaNalDetails[counter].position);
-      
+      while (j < hvaNalCounter && (hvaNalDetails[counter].picNumber == hvaNalDetails[j].picNumber))
+      {
+         j++;
+      }
+      hvaAuDetails[picCounter].size = hvaNalDetails[j].position - hvaNalDetails[counter].position;
+      hvaAuDetails[picCounter].number = hvaNalDetails[counter].picNumber;
+      picCounter++;
    }
+//   printf ("skh debug : p_Dec->p_Inp->iDecFrmNum = %d\n", p_Dec->p_Inp->iDecFrmNum);
+   
 }
