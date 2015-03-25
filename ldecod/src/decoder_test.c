@@ -30,7 +30,7 @@
 #define DECOUTPUT_VIEW0_FILENAME  "H264_Decoder_Output_View0.yuv"
 #define DECOUTPUT_VIEW1_FILENAME  "H264_Decoder_Output_View1.yuv"
 
-int nalCounter ;
+int nalCounter;
 int frameCounter;
 nalDetails_p nalDetails [MAX_NAL_NUMBER];
 frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
@@ -278,17 +278,19 @@ int main(int argc, char **argv)
     close(hFileDecOutput1);
   }
 
+  
+
+  printf("%d frames are decoded.\n", iFramesDecoded);
+  printf("skh nalcounter = %d\n", nalCounter);
   for (counter = 0; counter < nalCounter ; counter ++)
   {
-     printf ("cunter = %d; picNumber = %d; type = %d ; length = %d ; position = %d \n",
+     printf ("SKH debug: counter = %d; picNumber = %d; type = %d ; length = %d ; position = %lu \n",
            counter,
            nalDetails[counter].picNumber,
            nalDetails[counter].type,
            nalDetails[counter].size, 
            nalDetails[counter].position);
   }
-
-  printf("%d frames are decoded.\n", iFramesDecoded);
   return 0;
 }
 

@@ -18,7 +18,7 @@
 #include "fast_memory.h"
 
 extern int nalCounter;
-extern int frameCounter;
+extern int hvAframeCounter;
 extern nalDetails_p nalDetails [MAX_NAL_NUMBER];
 extern frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
@@ -300,16 +300,25 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
 // Validation metrics: log nal data 
   nalDetails[nalCounter].type = nalu->nal_unit_type;
   nalDetails[nalCounter].size =  nalu->startcodeprefix_len + nalu->len;
-  nalDetails[nalCounter].picNumber = picNumber ;
-  //nalDetails[nalCounter].position = position;
-  //position += nalDetails[nalCounter].size;
+  nalDetails[nalCounter].picNumber = hvAframeCounter;
+  nalDetails[nalCounter].position = position;
+  position += nalDetails[nalCounter].size;
+  nalCounter++;
 #if 0
-  if ( (nalu->nal_unit_type == 6) | (nalu->nal_unit_type == 7) | (nalu->nal_unit_type == 8) | (nalu->nal_unit_type = 9) )
+  if ( (nalu->nal_unit_type == 0x06) | (nalu->nal_unit_type == 0x07) | (nalu->nal_unit_type == 0x08) | (nalu->nal_unit_type = 0x09) )
   {
      picNumber ++;
   }
 #endif
-  nalCounter++;
+#if 0 /*SKH: debug*/
+  printf ("SKH debug: counter = %d; picNumber = %d; type = %d ; length = %d ; position = %lu \n",
+           nalCounter,
+           hvAframeCounter,
+           nalDetails[nalCounter].type,
+           nalDetails[nalCounter].size, 
+           nalDetails[nalCounter].position);
+
+#endif
 
   return (pos);
 

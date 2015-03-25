@@ -62,6 +62,8 @@
 #include "mc_prediction.h"
 extern int testEndian(void);
 void reorder_lists(Slice *currSlice);
+int hvAframeCounter = 1;
+
 
 static inline void reset_mbs(Macroblock *currMB)
 {
@@ -1544,6 +1546,7 @@ process_nalu:
         }
         arideco_start_decoding (&currSlice->partArr[0].de_cabac, currStream->streamBuffer, ByteStartPosition, &currStream->read_len);
       }
+      hvAframeCounter++;
       // printf ("read_new_slice: returning %s\n", current_header == SOP?"SOP":"SOS");
       //FreeNALU(nalu);
       p_Vid->recovery_point = 0;
