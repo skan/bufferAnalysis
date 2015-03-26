@@ -264,6 +264,8 @@ int main(int argc, char **argv)
     }
   }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)));
 
+  hvaProcessMetrics();
+
   iRet = FinitDecoder(&pDecPicList);
   iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
   iRet = CloseDecoder();
@@ -278,8 +280,6 @@ int main(int argc, char **argv)
     close(hFileDecOutput1);
   }
 
-  hvaProcessMetrics();
-
   printf("%d frames are decoded.\n", iFramesDecoded);
   return 0;
 }
@@ -289,9 +289,14 @@ void hvaProcessMetrics()
    int counter = 0;
    int picCounter = 0;
    int j = 0;
+   size_t readInput;
+   FILE *inputBitstream;
+
+   inputBitstream = fopen(p_Dec->p_Inp->infile, "r");
+
 
    printf("skh nalcounter = %d\n", hvaNalCounter);
-   for (counter = 0; counter < hvaNalCounter ; counter ++)
+   while( counter < hvaNalCounter ) /*Delimit access units*/
    {
       printf ("SKH debug: counter = %d; picNumber = %d; type = %d ; length = %d ; position = %lu \n",
             counter,
@@ -299,14 +304,32 @@ void hvaProcessMetrics()
             hvaNalDetails[counter].type,
             hvaNalDetails[counter].size, 
             hvaNalDetails[counter].position);
+      j = counter;
       while (j < hvaNalCounter && (hvaNalDetails[counter].picNumber == hvaNalDetails[j].picNumber))
       {
+         hvaAuDetails[picCounter].size += hvaNalDetails[j].size;
          j++;
       }
-      hvaAuDetails[picCounter].size = hvaNalDetails[j].position - hvaNalDetails[counter].position;
+//      hvaAuDetails[picCounter].size = hvaNalDetails[j].position - hvaNalDetails[counter].position;
       hvaAuDetails[picCounter].number = hvaNalDetails[counter].picNumber;
+      hvaAuDetails[picCounter].position = hvaNalDetails[counter].position;
       picCounter++;
+      counter = j;
    }
-//   printf ("skh debug : p_Dec->p_Inp->iDecFrmNum = %d\n", p_Dec->p_Inp->iDecFrmNum);
-   
+   for (counter = 0; counter < picCounter ; counter++)
+   {
+      printf ("SKH au debug: counter = %d; picNumber = %d; length = %d ; position = %lu \n",
+            counter,
+            hvaAuDetails[counter].number,
+            hvaAuDetails[counter].size,
+            hvaAuDetails[counter].position);
+
+      readInput = (char*)malloc (sizeof(char) * hvaAuDetails[counter].size);
+      fseek (inputBitstream, hvaAuDetails[counter].position, SEEK_SET);
+      fread (readInput, sizeof(char), hvaAuDetails[counter].size, inputBitstream);
+   }
+   fclose (inputBitstream);
+
+
+   printf ("skh debug : input stream name = %s\n", p_Dec->p_Inp->infile);
 }
