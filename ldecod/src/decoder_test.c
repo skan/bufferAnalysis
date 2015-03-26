@@ -19,6 +19,7 @@
 #include "win32.h"
 #include "h264decoder.h"
 #include "configfile.h"
+#include "crc.h"
 
 #define DECOUTPUT_TEST      0
 
@@ -318,15 +319,16 @@ void hvaProcessMetrics()
    }
    for (counter = 0; counter < picCounter ; counter++)
    {
-      printf ("SKH au debug: counter = %d; picNumber = %d; length = %d ; position = %lu \n",
-            counter,
-            hvaAuDetails[counter].number,
-            hvaAuDetails[counter].size,
-            hvaAuDetails[counter].position);
-
       readInput = (char*)malloc (sizeof(char) * hvaAuDetails[counter].size);
       fseek (inputBitstream, hvaAuDetails[counter].position, SEEK_SET);
       fread (readInput, sizeof(char), hvaAuDetails[counter].size, inputBitstream);
+      hvaAuDetails[counter].crc = crc (readInput, hvaAuDetails[counter].size);
+      printf ("SKH au debug: counter = %d; picNumber = %d; length = %d ; position = %lu ; CRC = %lu\n",
+            counter,
+            hvaAuDetails[counter].number,
+            hvaAuDetails[counter].size,
+            hvaAuDetails[counter].position,
+            hvaAuDetails[counter].crc);
    }
    fclose (inputBitstream);
 
