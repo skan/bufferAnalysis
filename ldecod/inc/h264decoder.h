@@ -49,6 +49,7 @@ int CloseDecoder();
 int SetOptsDecoder(DecSet_t *pDecOpts);
 
 void hvaProcessMetrics();
+int hvaComputeAverageBitRate(int framesDecoded);
 
 
 #ifdef __cplusplus

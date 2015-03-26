@@ -34,6 +34,7 @@
 int hvaNalCounter;
 hvaNalDetails_t hvaNalDetails [HVA_MAX_NAL_NUMBER];
 hvaAuDetails_t hvaAuDetails [HVA_MAX_AU_NUMBER];
+hvaParseData_t hvaParseData;
 
 frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
@@ -293,14 +294,11 @@ void hvaProcessMetrics()
    size_t readInput;
    FILE *inputBitstream;
    FILE *outputCrcDump;
-
    int overallNalCount = hvaNalCounter;
+   int averageBitRate = 0;
+
    inputBitstream = fopen(p_Dec->p_Inp->infile, "r");
    outputCrcDump = fopen("out.crc", "wb");
-
-
-
-   printf("skh nalcounter = %d\n", hvaNalCounter);
 
 #if 0
    for (counter = 0 ; counter <= overallNalCount ; counter++)
@@ -348,5 +346,34 @@ void hvaProcessMetrics()
    }
    fclose (inputBitstream);
    fclose (outputCrcDump);
+   printf("skh debug : time scale = %d\n", p_Dec->p_Vid->active_sps->vui_seq_parameters.time_scale);
+   printf("skh debug : num_unit_ticks = %d\n", p_Dec->p_Vid->active_sps->vui_seq_parameters.num_units_in_tick);
+   printf("skh debug : delay = %d\n", hvaParseData.SeiInitialDelay);
+
+   averageBitRate = hvaComputeAverageBitRate(picCounter);
+   printf("skh debug: average bitrate = %d", averageBitRate);
 
 }
+
+/*********************************************
+* computeAverageBitRate
+* *******************************************/
+int hvaComputeAverageBitRate(int framesDecoded)
+{
+   unsigned int i;
+   int bitRatePerPicture;
+   unsigned long cumulatedBitPerPicture;
+   int frameRate;
+
+   frameRate = (p_Dec->p_Vid->active_sps->vui_seq_parameters.time_scale / p_Dec->p_Vid->active_sps->vui_seq_parameters.num_units_in_tick) / 2;
+   printf("skh debug : frameRate = %d\n", frameRate);
+
+   for (i = 0; i < framesDecoded ; i++)
+   {
+      bitRatePerPicture = (hvaAuDetails[i].size*frameRate*8);
+      cumulatedBitPerPicture += bitRatePerPicture;
+      //printf("sk test: %d, %d, %d, %d\n",i,frame[i].esSize,bitRatePerPicture);
+   }
+   return  (cumulatedBitPerPicture / framesDecoded) ;
+}
+

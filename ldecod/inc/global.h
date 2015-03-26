@@ -58,6 +58,10 @@ struct pic_motion_params;
  * Global definitions for Encoder Validation
  ***********************************************************************
  */
+typedef struct hvaParseData_s
+{
+  int   SeiInitialDelay;
+} hvaParseData_t;
 
 typedef struct hvaAuDetails_s
 {
