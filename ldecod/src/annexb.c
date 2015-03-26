@@ -236,6 +236,14 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
 
       // printf ("get_annex_b_NALU, eof case: pos %d nalu->len %d, nalu->reference_idc %d, nal_unit_type %d \n", pos, nalu->len, nalu->nal_reference_idc, nalu->nal_unit_type);
 
+// Validation metrics: log last nal data 
+     hvaNalDetails[hvaNalCounter].type = nalu->nal_unit_type;
+     hvaNalDetails[hvaNalCounter].size =  nalu->startcodeprefix_len + nalu->len;
+     hvaNalDetails[hvaNalCounter].picNumber = hvAframeCounter;
+     hvaNalDetails[hvaNalCounter].position = position;
+     position += hvaNalDetails[hvaNalCounter].size;
+     hvaNalCounter++;
+
 #if TRACE
       fprintf (p_Dec->p_trace, "\n\nLast NALU in File\n\n");
       fprintf (p_Dec->p_trace, "Annex B NALU w/ %s startcode, len %d, forbidden_bit %d, nal_reference_idc %d, nal_unit_type %d\n\n",
@@ -303,6 +311,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
   hvaNalDetails[hvaNalCounter].picNumber = hvAframeCounter;
   hvaNalDetails[hvaNalCounter].position = position;
   position += hvaNalDetails[hvaNalCounter].size;
+  //printf ("skh debug: hvaNalCounter = %d & size = %d\n", hvaNalCounter, hvaNalDetails[hvaNalCounter].size);
   hvaNalCounter++;
 
   return (pos);

@@ -45,8 +45,8 @@
 typedef struct bit_stream_dec Bitstream;
 
 #define ET_SIZE 300      //!< size of error text buffer
-#define HVA_MAX_NAL_NUMBER 5000
-#define HVA_MAX_AU_NUMBER 300
+#define HVA_MAX_NAL_NUMBER 10000
+#define HVA_MAX_AU_NUMBER 10000
 
 #define MAX_FRAME_NUMBER 5000
 

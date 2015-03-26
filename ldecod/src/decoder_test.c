@@ -292,12 +292,18 @@ void hvaProcessMetrics()
    int j = 0;
    size_t readInput;
    FILE *inputBitstream;
+   FILE *outputCrcDump;
 
+   int overallNalCount = hvaNalCounter;
    inputBitstream = fopen(p_Dec->p_Inp->infile, "r");
+   outputCrcDump = fopen("out.crc", "wb");
+
 
 
    printf("skh nalcounter = %d\n", hvaNalCounter);
-   while( counter < hvaNalCounter ) /*Delimit access units*/
+
+#if 0
+   for (counter = 0 ; counter <= overallNalCount ; counter++)
    {
       printf ("SKH debug: counter = %d; picNumber = %d; type = %d ; length = %d ; position = %lu \n",
             counter,
@@ -305,8 +311,13 @@ void hvaProcessMetrics()
             hvaNalDetails[counter].type,
             hvaNalDetails[counter].size, 
             hvaNalDetails[counter].position);
+   }
+#endif
+   counter = 0;
+   while( counter < overallNalCount ) /*Delimit access units*/
+   {
       j = counter;
-      while (j < hvaNalCounter && (hvaNalDetails[counter].picNumber == hvaNalDetails[j].picNumber))
+      while (j < overallNalCount && (hvaNalDetails[counter].picNumber == hvaNalDetails[j].picNumber))
       {
          hvaAuDetails[picCounter].size += hvaNalDetails[j].size;
          j++;
@@ -314,24 +325,28 @@ void hvaProcessMetrics()
 //      hvaAuDetails[picCounter].size = hvaNalDetails[j].position - hvaNalDetails[counter].position;
       hvaAuDetails[picCounter].number = hvaNalDetails[counter].picNumber;
       hvaAuDetails[picCounter].position = hvaNalDetails[counter].position;
-      picCounter++;
+      picCounter = hvaNalDetails[counter].picNumber;
       counter = j;
    }
+   
    for (counter = 0; counter < picCounter ; counter++)
    {
+      //printf ("skh debug: counter = %d\n", counter);
       readInput = (char*)malloc (sizeof(char) * hvaAuDetails[counter].size);
       fseek (inputBitstream, hvaAuDetails[counter].position, SEEK_SET);
       fread (readInput, sizeof(char), hvaAuDetails[counter].size, inputBitstream);
       hvaAuDetails[counter].crc = crc (readInput, hvaAuDetails[counter].size);
-      printf ("SKH au debug: counter = %d; picNumber = %d; length = %d ; position = %lu ; CRC = %lu\n",
+#if 0
+      printf ("SKH AU debug: counter = %d; picNumber = %d; length = %d ; position = %lu ; CRC = %lu\n",
             counter,
             hvaAuDetails[counter].number,
             hvaAuDetails[counter].size,
             hvaAuDetails[counter].position,
             hvaAuDetails[counter].crc);
+#endif
+      fprintf(outputCrcDump,"%lu\n", hvaAuDetails[counter].crc);
    }
    fclose (inputBitstream);
+   fclose (outputCrcDump);
 
-
-   printf ("skh debug : input stream name = %s\n", p_Dec->p_Inp->infile);
 }
