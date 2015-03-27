@@ -98,6 +98,8 @@ typedef struct
    int minCpbFullness;
    int cpbSize;
    int initialDelay;
+   int overFlow;
+   int underFlow;
 } hvaResults_t;
 
 

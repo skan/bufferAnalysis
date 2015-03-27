@@ -395,14 +395,15 @@ int hvaAnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
    int vSync = 1000 / frameRate ; /* (vSync in ms) */ 
    int totalTime = vSync * numberOfPicts;
    int initialDelay = hvaParseData.SeiInitialDelay / 90 ;
-   int cpbSize = hvaParseData.cpb_size_value_minus1 * 32;
 
-   printf("skh debug : hvaParseData.SeiInitialDelay = %d\n", initialDelay);
-   printf("skh debug: cpbSize = %d \n", cpbSize);
    hvaResults.targetBitRate=hvaParseData.bit_rate_value_minus1 * 64;
    hvaResults.initialDelay = hvaParseData.SeiInitialDelay / 90;
-   printf("skh debug : hvaResults.targetBitRate = %d\n", hvaResults.targetBitRate);
+   hvaResults.cpbSize  = hvaParseData.cpb_size_value_minus1 * 32;
    
+   printf("skh debug : hvaParseData.SeiInitialDelay = %d\n", initialDelay);
+   printf("skh debug : hvaResults.targetBitRate = %d\n", hvaResults.targetBitRate);
+   printf("skh debug:  cpbSize = %d \n",hvaResults.cpbSize );
+
    for (time = 0 ; time < totalTime ; time +=vSync)
    {
       i++;
@@ -410,6 +411,8 @@ int hvaAnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
       cpb[i].time = time;
       cpb[i].index=i;
       hvaResults.maxCpbFullness = MAX(hvaResults.maxCpbFullness,cpb[i].fullNess);
+      if (hvaResults.maxCpbFullness > hvaResults.cpbSize)
+         hvaResults.overFlow++;
       if (time >= hvaResults.initialDelay )
       {
          i++;
@@ -420,6 +423,12 @@ int hvaAnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
             hvaResults.minCpbFullness = cpb[i].fullNess;
          else
             hvaResults.minCpbFullness = MIN(hvaResults.minCpbFullness,cpb[i].fullNess);
+         if (hvaResults.minCpbFullness < 0)
+         {
+            hvaResults.minCpbFullness = 0;
+            hvaResults.underFlow++;
+         }
+
          j++;
       }
    }
