@@ -31,10 +31,15 @@
 #define DECOUTPUT_VIEW0_FILENAME  "H264_Decoder_Output_View0.yuv"
 #define DECOUTPUT_VIEW1_FILENAME  "H264_Decoder_Output_View1.yuv"
 
+// HVA
+#define MAX(x,y) ((x) < (y) ? (y) : (x))
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
 int hvaNalCounter;
 hvaNalDetails_t hvaNalDetails [HVA_MAX_NAL_NUMBER];
 hvaAuDetails_t hvaAuDetails [HVA_MAX_AU_NUMBER];
 hvaParseData_t hvaParseData;
+hvaResults_t hvaResults;
+int targetBitRate = 1500000;
 
 frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 
@@ -295,7 +300,8 @@ void hvaProcessMetrics()
    FILE *inputBitstream;
    FILE *outputCrcDump;
    int overallNalCount = hvaNalCounter;
-   int averageBitRate = 0;
+   hvaCpb_t cpb[3000];
+
 
    inputBitstream = fopen(p_Dec->p_Inp->infile, "r");
    outputCrcDump = fopen("out.crc", "wb");
@@ -329,7 +335,6 @@ void hvaProcessMetrics()
    
    for (counter = 0; counter < picCounter ; counter++)
    {
-      //printf ("skh debug: counter = %d\n", counter);
       readInput = (char*)malloc (sizeof(char) * hvaAuDetails[counter].size);
       fseek (inputBitstream, hvaAuDetails[counter].position, SEEK_SET);
       fread (readInput, sizeof(char), hvaAuDetails[counter].size, inputBitstream);
@@ -350,8 +355,9 @@ void hvaProcessMetrics()
    printf("skh debug : num_unit_ticks = %d\n", p_Dec->p_Vid->active_sps->vui_seq_parameters.num_units_in_tick);
    printf("skh debug : delay = %d\n", hvaParseData.SeiInitialDelay);
 
-   averageBitRate = hvaComputeAverageBitRate(picCounter);
-   printf("skh debug: average bitrate = %d", averageBitRate);
+   hvaResults.averageBitRate = hvaComputeAverageBitRate(picCounter);
+   AnalyseBuffer(picCounter, cpb);
+   printf("skh debug results: average bitrate = %d", hvaResults.averageBitRate);
 
 }
 
@@ -377,3 +383,37 @@ int hvaComputeAverageBitRate(int framesDecoded)
    return  (cumulatedBitPerPicture / framesDecoded) ;
 }
 
+/*********************************************
+ * analyseBuffer 
+ * *******************************************/
+int AnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
+{
+   int i = 0;
+   int j = 0;
+   int time = 0;
+   int frameRate = (p_Dec->p_Vid->active_sps->vui_seq_parameters.time_scale / p_Dec->p_Vid->active_sps->vui_seq_parameters.num_units_in_tick) / 2;
+   int vSync = 1000 / frameRate ; /* (vSync in ms) */ 
+   int totalTime = vSync * numberOfPicts;
+   
+   for (time = 0 ; time < totalTime ; time +=vSync)
+   {
+      i++;
+      cpb[i].fullNess = cpb[i-1].fullNess + (targetBitRate / frameRate);
+      cpb[i].time = time;
+      cpb[i].index=i;
+      hvaResults.maxCpbFullness = MAX(hvaResults.maxCpbFullness,cpb[i].fullNess);
+      if (time >= hvaParseData.SeiInitialDelay)
+      {
+         i++;
+         cpb[i].fullNess = cpb[i-1].fullNess - 8*hvaAuDetails[j].size;
+         cpb[i].time = time;
+         cpb[i].index=i;
+         if (hvaResults.minCpbFullness == 0)
+            hvaResults.minCpbFullness = cpb[i].fullNess;
+         else
+            hvaResults.minCpbFullness = MIN(hvaResults.minCpbFullness,cpb[i].fullNess);
+         j++;
+      }
+   }
+   return i;
+}

@@ -81,6 +81,21 @@ typedef struct hvaNalDetails_s
   int   picNumber;
 } hvaNalDetails_t;
 
+typedef struct 
+{
+   int fullNess;
+   int time;
+   int index;
+} hvaCpb_t;
+
+typedef struct 
+{
+   int averageBitRate;
+   int maxCpbFullness;
+   int minCpbFullness;
+} hvaResults_t;
+
+
 typedef struct frameDetails_s
 {
    int position;
