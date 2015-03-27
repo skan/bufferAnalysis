@@ -50,7 +50,8 @@ int SetOptsDecoder(DecSet_t *pDecOpts);
 
 void hvaProcessMetrics();
 int hvaComputeAverageBitRate(int framesDecoded);
-int AnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb);
+int hvaAnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb);
+int hvaComputeTargetBitrate ();
 
 
 #ifdef __cplusplus

@@ -356,7 +356,7 @@ void hvaProcessMetrics()
    printf("skh debug : delay = %d\n", hvaParseData.SeiInitialDelay);
 
    hvaResults.averageBitRate = hvaComputeAverageBitRate(picCounter);
-   AnalyseBuffer(picCounter, cpb);
+   hvaAnalyseBuffer(picCounter, cpb);
    printf("skh debug results: average bitrate = %d", hvaResults.averageBitRate);
 
 }
@@ -386,7 +386,7 @@ int hvaComputeAverageBitRate(int framesDecoded)
 /*********************************************
  * analyseBuffer 
  * *******************************************/
-int AnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
+int hvaAnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
 {
    int i = 0;
    int j = 0;
@@ -394,15 +394,23 @@ int AnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
    int frameRate = (p_Dec->p_Vid->active_sps->vui_seq_parameters.time_scale / p_Dec->p_Vid->active_sps->vui_seq_parameters.num_units_in_tick) / 2;
    int vSync = 1000 / frameRate ; /* (vSync in ms) */ 
    int totalTime = vSync * numberOfPicts;
+   int initialDelay = hvaParseData.SeiInitialDelay / 90 ;
+   int cpbSize = hvaParseData.cpb_size_value_minus1 * 32;
+
+   printf("skh debug : hvaParseData.SeiInitialDelay = %d\n", initialDelay);
+   printf("skh debug: cpbSize = %d \n", cpbSize);
+   hvaResults.targetBitRate=hvaParseData.bit_rate_value_minus1 * 64;
+   hvaResults.initialDelay = hvaParseData.SeiInitialDelay / 90;
+   printf("skh debug : hvaResults.targetBitRate = %d\n", hvaResults.targetBitRate);
    
    for (time = 0 ; time < totalTime ; time +=vSync)
    {
       i++;
-      cpb[i].fullNess = cpb[i-1].fullNess + (targetBitRate / frameRate);
+      cpb[i].fullNess = cpb[i-1].fullNess + (hvaResults.targetBitRate / frameRate);
       cpb[i].time = time;
       cpb[i].index=i;
       hvaResults.maxCpbFullness = MAX(hvaResults.maxCpbFullness,cpb[i].fullNess);
-      if (time >= hvaParseData.SeiInitialDelay)
+      if (time >= hvaResults.initialDelay )
       {
          i++;
          cpb[i].fullNess = cpb[i-1].fullNess - 8*hvaAuDetails[j].size;
@@ -415,5 +423,26 @@ int AnalyseBuffer(int numberOfPicts, hvaCpb_t * cpb)
          j++;
       }
    }
+#if 1 /*SKH debug*/
+   for (j=0; j < i; j++)
+      printf("%d;%d\n", cpb[j].time, cpb[j].fullNess);
+#endif 
    return i;
 }
+/*********************************************
+ * compute Target Bitrate
+ * *******************************************/
+int hvaComputeTargetBitrate ()
+{
+   int targetBitRate = 0;
+   if (p_Dec->p_Vid->width <= 480)
+      targetBitRate = 300000;
+   else if (p_Dec->p_Vid->width <= 719)
+      targetBitRate = 1500000;
+   else if (p_Dec->p_Vid->width <= 1079)
+      targetBitRate = 4000000;
+   else
+      targetBitRate = 8000000;
+   return targetBitRate; 
+}
+

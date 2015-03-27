@@ -61,6 +61,8 @@ struct pic_motion_params;
 typedef struct hvaParseData_s
 {
   int   SeiInitialDelay;
+  int   cpb_size_value_minus1;
+  int   bit_rate_value_minus1;
 } hvaParseData_t;
 
 typedef struct hvaAuDetails_s
@@ -91,8 +93,11 @@ typedef struct
 typedef struct 
 {
    int averageBitRate;
+   int targetBitRate;
    int maxCpbFullness;
    int minCpbFullness;
+   int cpbSize;
+   int initialDelay;
 } hvaResults_t;
 
 

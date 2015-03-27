@@ -32,6 +32,8 @@
 
 extern void init_frext(VideoParameters *p_Vid);
 
+extern hvaParseData_t hvaParseData;
+
 // syntax for scaling list matrix values
 void Scaling_List(int *scalingList, int sizeOfScalingList, Boolean *UseDefaultScalingMatrix, Bitstream *s)
 {
@@ -375,6 +377,8 @@ int ReadHRDParameters(DataPartition *p, hrd_parameters_t *hrd)
     hrd->bit_rate_value_minus1[ SchedSelIdx ]             = read_ue_v  ( "VUI: bit_rate_value_minus1"                  , s, &p_Dec->UsedBits);
     hrd->cpb_size_value_minus1[ SchedSelIdx ]             = read_ue_v  ( "VUI: cpb_size_value_minus1"                  , s, &p_Dec->UsedBits);
     hrd->cbr_flag[ SchedSelIdx ]                          = read_u_1   ( "VUI: cbr_flag"                               , s, &p_Dec->UsedBits);
+    hvaParseData.cpb_size_value_minus1 = hrd->cpb_size_value_minus1[ SchedSelIdx ]; 
+    hvaParseData.bit_rate_value_minus1= hrd->bit_rate_value_minus1[ SchedSelIdx ];
   }
 
   hrd->initial_cpb_removal_delay_length_minus1            = read_u_v  ( 5,"VUI: initial_cpb_removal_delay_length_minus1" , s, &p_Dec->UsedBits);
@@ -384,6 +388,7 @@ int ReadHRDParameters(DataPartition *p, hrd_parameters_t *hrd)
 
   return 0;
 }
+   
 
 
 int InterpretPPS (VideoParameters *p_Vid, DataPartition *p, pic_parameter_set_rbsp_t *pps)

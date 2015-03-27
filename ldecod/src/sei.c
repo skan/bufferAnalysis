@@ -24,6 +24,7 @@
 #include "parset.h"
 
 extern hvaParseData_t hvaParseData;
+static int hvaIsSeiDelayAcquired = 0;
 
 // #define PRINT_BUFFERING_PERIOD_INFO    // uncomment to print buffering period SEI info
 // #define PRINT_PICTURE_TIMING_INFO      // uncomment to print picture timing SEI info
@@ -1642,7 +1643,11 @@ void interpret_buffering_period_info( byte* payload, int size, VideoParameters *
       }
     }
   }
-  hvaParseData.SeiInitialDelay = initial_cpb_removal_delay;
+  if (hvaIsSeiDelayAcquired == 0)
+  {
+     hvaParseData.SeiInitialDelay = initial_cpb_removal_delay;
+     hvaIsSeiDelayAcquired = 1;
+  }
 
   free (buf);
 #ifdef PRINT_BUFFERING_PERIOD_INFO

@@ -25,7 +25,6 @@ extern frameDetails_t frameDetailx [MAX_FRAME_NUMBER];
 static const int IOBUFFERSIZE = 512*1024; //65536;
 
 static int position = 0;
-static int picNumber = 1;
 
 void malloc_annex_b(VideoParameters *p_Vid, ANNEXB_t **p_annex_b)
 {
